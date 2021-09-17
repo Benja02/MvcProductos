@@ -67,7 +67,7 @@ namespace MvcProductos.Controllers
                 ViewBag.IdCategory = new SelectList(db.Categorias, "IdCategory", "Descripcion", product.IdCategoria);
                 return View(product);
             }
-            if (product.existencia < product.existencia)
+            if (product.existencia < product.numPedidos)
             {
                 ModelState.AddModelError("", "No se puede agregar una cantidad de pedidos mayor a la de las existencias");
                 ViewBag.IdCategory = new SelectList(db.Categorias, "IdCategory", "Descripcion", product.IdCategoria);
