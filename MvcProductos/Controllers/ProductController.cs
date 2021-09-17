@@ -15,9 +15,18 @@ namespace MvcProductos.Controllers
         private TallerContext db = new TallerContext();
 
         // GET: Product
-        public ActionResult Index()
+        public ActionResult Index(string descripcion = "", int existencia = 0, double precio = 0)
         {
-            return View(db.Productos.ToList());
+            var a = db.Productos.Include(p => p.Category);
+            if (!string.IsNullOrEmpty(descripcion))
+                a = a.Where(p => p.Descripcion.ToUpper().Contains(descripcion.ToUpper()));
+            if (existencia > 0)
+                a = a.Where(p => p.existencia == existencia);
+            if (precio > 0)
+                a = a.Where(p => p.precioVenta == precio);
+
+            return View(a.ToList());
+            //return View(db.Productos.ToList());
         }
 
         // GET: Product/Details/5
@@ -38,7 +47,12 @@ namespace MvcProductos.Controllers
         // GET: Product/Create
         public ActionResult Create()
         {
+            if (db.Categorias.Count() == 0)
+                return RedirectToAction("Create", "Categorias");
+
+            ViewBag.IdCategory = new SelectList(db.Categorias, "IdCategory", "Descripcion");
             return View();
+            
         }
 
         // POST: Product/Create
@@ -48,14 +62,24 @@ namespace MvcProductos.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "IdProduct,Descripcion,IdCategoria,Costo,precioVenta,existencia,numPedidos")] Product product)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                db.Productos.Add(product);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                ViewBag.IdCategory = new SelectList(db.Categorias, "IdCategory", "Descripcion", product.IdCategoria);
+                return View(product);
+            }
+            if (product.existencia < product.existencia)
+            {
+                ModelState.AddModelError("", "No se puede agregar una cantidad de pedidos mayor a la de las existencias");
+                ViewBag.IdCategory = new SelectList(db.Categorias, "IdCategory", "Descripcion", product.IdCategoria);
+                return View(product);
             }
 
-            return View(product);
+            product.Descripcion = product.Descripcion.ToUpper();
+            db.Productos.Add(product);
+            db.SaveChanges();
+            return RedirectToAction("Index");
+
+
         }
 
         // GET: Product/Edit/5
@@ -70,6 +94,7 @@ namespace MvcProductos.Controllers
             {
                 return HttpNotFound();
             }
+            ViewBag.IdCategory = new SelectList(db.Categorias, "IdCategory", "Descripcion", product.IdCategoria);
             return View(product);
         }
 
@@ -80,13 +105,23 @@ namespace MvcProductos.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "IdProduct,Descripcion,IdCategoria,Costo,precioVenta,existencia,numPedidos")] Product product)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                db.Entry(product).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                ViewBag.IdCategory = new SelectList(db.Categorias, "IdCategory", "Descripcion", product.IdCategoria);
+                return View(product);
             }
-            return View(product);
+            if (product.existencia < product.numPedidos)
+            {
+                ModelState.AddModelError("", "Error, intenta pedir más de lo que hay en existencias");
+                ViewBag.IdCategory = new SelectList(db.Categorias, "IdCategory", "Descripcion", product.IdCategoria);
+                return View(product);
+            }
+
+            product.Descripcion = product.Descripcion.ToUpper();
+            db.Entry(product).State = EntityState.Modified;
+            db.SaveChanges();
+            return RedirectToAction("Index");
+
         }
 
         // GET: Product/Delete/5

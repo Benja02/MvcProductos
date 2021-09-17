@@ -5,10 +5,42 @@
 }
 
 <h2>Index</h2>
+<div>
+    @using (Html.BeginForm())
+    {
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label>Descripcion</label>
+                <input type="text" name="descripcion" class="form-control" />
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label>Existencia</label>
+                <input type="number" name="existencia" class="form-control" />
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label>Precio</label>
+                <input type="text" name="precio" class="form-control" />
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label> </label>
+                <button type="submit" class="btn btn-primary" style="margin-top:25px">Filtrar productos</button>
+            </div>
+        </div>
+    </div>
 
+    }
+</div>
 <p>
     @Html.ActionLink("Create New", "Create")
 </p>
+
 <table class="table">
     <tr>
         <th>

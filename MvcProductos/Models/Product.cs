@@ -17,7 +17,7 @@ namespace MvcProductos.Models
         [Required]
         [Display(Name = "Categoría")]
         public int IdCategoria { get; set; }
-        public virtual Category categoria { get; set; }
+        public virtual Category Category { get; set; }
         [Required]
         [Display(Name = "Costo")]
         public double Costo { get; set; }
